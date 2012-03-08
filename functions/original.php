@@ -1,17 +1,63 @@
 <?php
 
-//$tweet = new TwitterOAuth( $consumerKey, $consumerSecret, $oAuthToken, $oAuthSecret );
+//$tweet = new TwitterOAuth( $consumerKey, $consumerSecret, $oAuthToken,
+// $oAuthSecret );
 
 
+function notify($message, $sendEmail = false, $subject = NULL) {
+    if (!empty($message)) {
+        $tweet = new TwitterOAuth( CONKEY, CONSECRET, OATOKEN, OASECRET );
+        $tweet->post( 'statuses/update', array( 'status' => $msg ) );
+        
+        
+        if ($sendEmail) {
+            $request = new RestClient( 'https://api.mailgun.net/v2/jcode.mailgun.org' );
+            
+            $params = array(
+                'from'           => FROM_EMAIL,
+                'to'             => TO_EMAIL,
+                'subject'        => $subject,
+                'text'           => 'Hello',
+            );
+            
+            $response = $request->execute(
+                RestClient::REQUEST_TYPE_POST,
+                '/messages',
+                $params,
+                array(
+                    sprintf( 'Authorization: Basic %s', base64_encode( 'api:key-7cl2z16z75gnvecupmphjfnr0o9qyto8' ) ),
+                )
+            );
 
+        }
+    }
+}
 
-function format_uptime( $seconds ) {
+function loadtoString( $load ) {
+    if($load > 10 ) {
+        return "universe ending";
+    } else if($load > 8 ) {
+        return "catastrophic";
+    } else if($load > 6 ) {
+        return "insainly-high";
+    } else if($load > 4 ) {
+        return "high";
+    } else if($load > 3 ) {
+        return "moderately-high";
+    } else if($load > 2 ) {
+        return "moderate";
+    } else if($load > 1 ) {
+        return "some";
+    }
+}
+
+function formatUptime( $seconds ) {
     $secs = $mins = $hours = $days = 0;
     $uptimeString = "";
-    $secs = intval( $seconds % 60 );
-    $mins = intval( $seconds / 60 % 60 );
+    $secs  = intval( $seconds % 60 );
+    $mins  = intval( $seconds / 60 % 60 );
     $hours = intval( $seconds / 3600 % 24 );
-    $days = intval( $seconds / 86400 );
+    $days  = intval( $seconds / 86400 );
 
     $uptime = $days . (($days == 1) ? " Day," : " Days,");
 
@@ -19,10 +65,12 @@ function format_uptime( $seconds ) {
         $uptimeString .= $hours;
         $uptimeString .= (($hours == 1) ? " Hour" : " Hours");
     }
+    
     if($mins > 0 ) {
         $uptimeString .= (($days > 0 || $hours > 0) ? ", " : "") . $mins;
         $uptimeString .= (($mins == 1) ? " Minute" : " Minutes");
     }
+    
     if($secs > 0 ) {
         $uptimeString .= (($days > 0 || $hours > 0 || $mins > 0) ? " and " : "") . $secs;
         $uptimeString .= (($secs == 1) ? " Sec" : " Secs");
@@ -33,54 +81,21 @@ function format_uptime( $seconds ) {
     return $uptimeString;
 }
 
-function tweetUptime( ) {
-    $data = explode( " ", file_get_contents( "/proc/uptime" ) );
-    $uptime = $data[0];
-    $uptime = format_uptime( $uptime );
+function sayUptime( ) {
+    $data   = explode( " ", file_get_contents( "/proc/uptime" ) );
+    $uptime = format_uptime( $data[0] );
 
-    $msg = "Currently been up for $uptime - #partycatsrv";
-    $tweet->post( 'statuses/update', array( 'status' => $msg ) );
+    $msg  = sprintf("Currently been up for %s - #%s",
+                    $uptime,
+                    SERVERHASHTAG
+                   );
+    notify( $msg );    
 }
 
-function countErrorLogs( ) {
-    $lines = 0;
-    $file = "/srv/d_PartyCat/www/bittenbythetravelbug.com/logs/bittenbythetravelbug.com-error.log";
-    $lines = @count( file( $file ) );
 
-    if($lines > 0 ) {
-        $msg = "Hello @NicoleTravelBug, your wordpress site had $lines errors in the past 24 hours. - $date #partycatsrv";
-        $tweet->post( 'statuses/update', array( 'status' => $msg ) );
-    }
-}
 
 function checkServerLoad( ) {
-    
-    // Get some system load
-    $load = sys_getloadavg( );
 
-    // Format our numbers
-    $now = number_format( $load[0], 2 );
-    $five = number_format( $load[1], 2 );
-    $fifteen = number_format( $load[2], 2 );
-
-    //
-    $load = $five;
-
-    if($load > 10 ) {
-        $degree = "universe ending";
-    } else if($load > 8 ) {
-        $degree = "catastrophic";
-    } else if($load > 6 ) {
-        $degree = "insainly-high";
-    } else if($load > 4 ) {
-        $degree = "high";
-    } else if($load > 3 ) {
-        $degree = "moderately-high";
-    } else if($load > 2 ) {
-        $degree = "moderate";
-    } else if($load > 1 ) {
-        $degree = "some";
-    }
 
     if(!empty( $degree ) ) {
         $msg = sprintf( "Currently experiencing %s server load ", $degree );
