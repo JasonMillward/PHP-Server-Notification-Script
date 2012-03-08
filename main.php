@@ -31,7 +31,6 @@
     if ( isMidnight() && lastRun('daily','22 Hours') ) {
         // Custom log reader
         readBackupLogs();
-        
     }
     
     

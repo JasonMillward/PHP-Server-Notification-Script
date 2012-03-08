@@ -1,17 +1,12 @@
 <?php
 
-//$tweet = new TwitterOAuth( $consumerKey, $consumerSecret, $oAuthToken,
-// $oAuthSecret );
-
-
 function notify($message, $sendEmail = false, $subject = NULL) {
     if (!empty($message)) {
         $tweet = new TwitterOAuth( CONKEY, CONSECRET, OATOKEN, OASECRET );
         $tweet->post( 'statuses/update', array( 'status' => $msg ) );
-        
-        
+
         if ($sendEmail) {
-            $request = new RestClient( 'https://api.mailgun.net/v2/jcode.mailgun.org' );
+            $request = new RestClient( 'https://api.mailgun.net/v2/' );
             
             $params = array(
                 'from'           => FROM_EMAIL,
@@ -25,7 +20,7 @@ function notify($message, $sendEmail = false, $subject = NULL) {
                 '/messages',
                 $params,
                 array(
-                    sprintf( 'Authorization: Basic %s', base64_encode( 'api:key-7cl2z16z75gnvecupmphjfnr0o9qyto8' ) ),
+                    sprintf( 'Authorization: Basic %s', base64_encode( APIKEY ) ),
                 )
             );
 
@@ -48,6 +43,8 @@ function loadtoString( $load ) {
         return "moderate";
     } else if($load > 1 ) {
         return "some";
+    } else {
+        return NULL;
     }
 }
 
@@ -82,27 +79,57 @@ function formatUptime( $seconds ) {
 }
 
 function sayUptime( ) {
-    $data   = explode( " ", file_get_contents( "/proc/uptime" ) );
-    $uptime = format_uptime( $data[0] );
+    $uptime = format_uptime( getUptime() );
 
-    $msg  = sprintf("Currently been up for %s - #%s",
+    $msg = sprintf("Currently been up for %s - #%s",
                     $uptime,
                     SERVERHASHTAG
-                   );
+                  );
     notify( $msg );    
 }
 
+function getUptime( ) {
+    $data = explode( " ", file_get_contents( "/proc/uptime" ) );
+    return $data[0];
+}
 
-
-function checkServerLoad( ) {
-
-
+function checkLoad( ) {
+    $load   = sys_getloadavg();
+    $load   = number_format($load[0],2);
+    $degree = loadtoString($load);
+       
     if(!empty( $degree ) ) {
-        $msg = sprintf( "Currently experiencing %s server load ", $degree );
+
         if($load > 4 ) {
-            $msg .= "@Jason_Millward please investigate ";
+            $alert = sprintf("@%s please investigate ", ADMINNAME);
+        } else {
+            $alert = "";
         }
-        $msg .= "- " . $date . " #partycatsrv";
-        $tweet->post( 'statuses/update', array( 'status' => $msg ) );
+        
+        $msg = sprintf("Currently experiencing %s server load %s - %s #%s",
+                        $degree,
+                        $alert,
+                        DATE,
+                        SERVERHASHTAG
+                      );
+        
+        notify( $msg );  
+    }
+}
+
+function checkErrorLogs( ) {
+    foreach($config['errorLogs'] as $conf) {        
+        $lines = 0;        
+        $lines = @count( file( $conf['path'] ) );
+    
+        if($lines > 0 ) {
+            $msg = sprintf("Hello @%s, your wordpress site had %d errors in the past 24 hours. - %s #%s",
+                            $conf['twitterName'],
+                            $lines,
+                            DATE,
+                            SERVERHASHTAG
+            );
+            $tweet->post( 'statuses/update', array( 'status' => $msg ) );
+        }
     }
 }
