@@ -1,1 +1,1 @@
-"!http://api.coderwall.com/jcode/endorse.png!":http://coderwall/jcode
+[![endorse](http://api.coderwall.com/jcode/endorse.png)](http://coderwall.com/jcode)
