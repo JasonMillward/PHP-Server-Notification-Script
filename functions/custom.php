@@ -16,71 +16,76 @@ function isMidnight( ) {
     }
 }
 
-function checkErrorLogs( ) {
-    foreach($config['errorLogs'] as $conf) {        
-        $lines = 0;        
-        $lines = @count( file( $conf['path'] ) );
+function readPartyCat() {
     
-        if($lines > 0 ) {
-            $msg = sprintf("Hello @%s, your wordpress site had %d errors in the past 24 hours. - %s #%s",
-                            $conf['twitterName'],
-                            $lines,
-                            DATE,
-                            SERVERHASHTAG
-            );
-            $tweet->post( 'statuses/update', array( 'status' => $msg ) );
-        }
-    }
-}
+    $fiveAgo = time( ) - (05 * 60);
 
-
-$fiveAgo = time( ) - (05 * 60);
-
-$sql = "SELECT      `serverTwitter`,
-                    `serverLoad`,
-                    `serverName`,
-                    `lastUpdate`
-        FROM        `remoteDevices`
-        ORDER BY    `ID` ASC
-        Limit 5";
-
-try {
+    $sql = "SELECT      `serverTwitter`,
+                        `serverLoad`,
+                        `serverName`,
+                        `lastUpdate`
+            FROM        `remoteDevices`
+            ORDER BY    `ID` ASC
+            Limit 5";
 
     $result = $dbh->query( $sql );
     $result = $result->fetchAll( PDO::FETCH_ASSOC );
 
     foreach( $result as $row ) {
-        $load = $row['serverLoad'];
+        $load    = $row['serverLoad'];
         $hashTag = $row['serverTwitter'];
-        $name = $row['serverName'];
-        $degree = "";
+        $name    = $row['serverName'];
+        
         if($row['lastUpdate'] > $fiveAgo ) {
 
+            $degree = loadtoString($load);
+            
             if(!empty( $degree ) ) {
-                $msg = sprintf( "%s is currently experiencing %s server load ", $name, $degree );
+
                 if($load > 4 ) {
-                    $msg .= "@Jason_Millward please investigate ";
+                    $alert = sprintf("@%s please investigate ", ADMINNAME);
+                } else {
+                    $alert = "";
                 }
-                $msg .= sprintf( "- " . $date . " #%s", $hashTag );
-                $tweet->post( 'statuses/update', array( 'status' => $msg ) );
+                
+                $msg .= sprintf( "%s is currently experiencing %s server load %s - %s #%s", 
+                                $name,
+                                $degree,
+                                $alert,
+                                DATE,
+                                $hashTag
+                              );
+                
+                notify( $msg ); 
             }
         }
     }
-} catch ( PDOException $e ) {
-    #    printf('Database Error: %s', $e -> getMessage());
 }
 
-$tweet = new TwitterOAuth( $consumerKey, $consumerSecret, $oAuthToken, $oAuthSecret );
+function readBackupLogs() {    
+    global $config;
+    
+    foreach ($config['backupLogs'] as $key) {
+        $good = 0;
+        $bad  = 0;
+        
+        $content = file_get_contents( $key['path'] );
+        
+        $good += substr_count( $content, "Finished" );
+        $bad  += substr_count( $content, "Error" );
 
-$content = file_get_contents( "/srv/d_PartyCat/output/crondump" );
-
-$good += substr_count( $content, "Finished" );
-$bad += substr_count( $content, "Error" );
-
-if($bad <= $good ) {
-    $msg = "Local SQL and file backups completed successfully. All tables optimised - $date #partycatsrv";
-} else {
-    $msg = "Local SQL and file backups completed unsuccessfully @Jason_Millward please investigate - $date #partycatsrv";
+        if($bad <= $good ) {
+            $status = "successfully. All tables optimised";
+        } else {
+            $status = sprintf("unsuccessfully @%s please investigate", ADMINNAME);
+        }
+        
+        $msg = sprintf("Local SQL and file backups completed %s - %s #%s",
+                        $status,
+                        DATE,
+                        SERVERHASHTAG
+                      );
+        notify( $msg );
+    }
 }
-
 

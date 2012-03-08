@@ -9,9 +9,6 @@ define( 'CONSECRET',        '' );
 define( 'OATOKEN',          '' );
 define( 'OASECRET',         '' );
 
-// DATE FORMAT
-define( 'DATE',             date( "F j, Y, g:i a" ) );
-
 // DATABASE
 define( 'DB_DSN',           'mysql:dbname=;host=;port=;' );
 define( 'DB_USER',          '' );
@@ -24,12 +21,29 @@ define( 'FROM_EMAIL',       'SERVER <SERVER@DOMAIN.COM>' );
 define( 'TO_EMAIL',         'YOU <YOU@DOMAIN.COM>' );
 define( 'APIKEY',           'api:key-' );
 
+// PATH FOR LOG FILES
+define( 'LOG_PATH',         dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'logs' );
+
+// DATE FORMAT
+define( 'DATE',             date( "F j, Y, g:i a" ) );
+
+
+// PATH TO ERROR LOGS 
 $config['errorLogs'][] = array(
     "path"        => "/",
     "twitterName" => ""
 );
 
+// DEFINE HARD DRIVES
+$config['drives'][] = array(
+    "path" => "/",
+    "name" => "/"
+);
 
+// PATH TO BACKUP LOGS 
+$config['backupLogs'][] = array(
+    "path" => "/"
+);
 
 try {
     $dbh = new PDO( DB_DSN, DB_USER, DB_PASS );

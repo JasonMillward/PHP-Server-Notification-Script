@@ -22,26 +22,37 @@
 
 
     // Things that only happen on the first of the month    
-    if ( todayIsTheFirst() && lastRun('monthly','28 Days') ) {        
+    if ( todayIsTheFirst() && lastRun('monthly','28 Days') ) {
+                
+        // Notify the wold to how long we've been up and running for
         sayUptime();
+        
+        // Notify the world how much data we've sent and recived 
         sayNetwork();  
     }
     
     // Things that run once a day, at midnight
     if ( isMidnight() && lastRun('daily','22 Hours') ) {
-        // Custom log reader
+        
+        // Check backup logs to see if everything was completed successfully
         readBackupLogs();
+        
+        // Read HDD free space, notify admin if they're too full
+        checkDisks();
     }
     
     
     // Things that are being checked every x minutes
 
-    // Generic
+    // Check server load, if it's too high, notify everyone
     checkLoad();
-    checkErrorLogs();
-    checkDisks();
-
     
-    // Custom functions
+    // Read error logs, notify owner to make them stop being silly
+    checkErrorLogs();
+
+    // Check database load, buffer and general databasey things
     readDB();
-    readPartyCat();
+    
+    // Custom network load checker
+    //readPartyCat();
+     

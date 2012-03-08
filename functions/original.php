@@ -117,6 +117,28 @@ function checkLoad( ) {
     }
 }
 
+function checkDisks() {
+    global $config;
+    
+    foreach ($config['drives'] as $key) {
+        $dir  = $key['path'];
+        $name = $key['name'];
+        
+        $max  = disk_total_space($dir);
+        $size = disk_total_space($dir) - disk_free_space($dir);
+        
+        $perc = round(($size / $max) * 100, 2);
+        if ($perc > 70) {
+            $msg = sprintf("HDD %s is getting rather full... - %s #%s",
+                            $name,
+                            DATE,
+                            SERVERHASHTAG
+            );
+            notify( $msg );
+        }        
+    }
+}
+
 function checkErrorLogs( ) {
     foreach($config['errorLogs'] as $conf) {        
         $lines = 0;        
