@@ -206,6 +206,7 @@ function checkDisks() {
 }
 
 function checkErrorLogs( ) {
+    global $config;
     foreach($config['errorLogs'] as $conf) {        
         $lines = 0;        
         $lines = @count( file( $conf['path'] ) );
