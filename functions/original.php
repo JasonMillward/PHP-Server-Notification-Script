@@ -28,6 +28,72 @@ function notify($message, $sendEmail = false, $subject = NULL) {
     }
 }
 
+function lastRun($name,$length) {
+    global $dbh;
+
+    // Lets create our own cron :( 
+    
+    $sql = sprintf("SELECT      COUNT(*) 
+                    FROM        `lastRunTime`
+                    WHERE       `runName` = '%s'",
+                    $name
+                   );
+                   
+    if ($res = $dbh->query($sql)) {
+        
+        if ($res->fetchColumn() > 0) {
+
+            $sql = sprintf("SELECT      `runTime`         
+                            FROM        `lastRunTime`
+                            WHERE       `runName` = '%s'",
+                            $name
+                           );   
+                            
+            if ($res = $dbh->query($sql)) {
+                
+                $lastRun = intval( $res->fetchColumn() );
+                
+                $minTime = strtotime( $length, $lastRun );
+                
+                if ( time() > $minTime ) {                    
+                    // Update run time to now
+                    $sql = sprintf("UPDATE  `lastRunTime` 
+                                    SET     `runTime` = '%d' 
+                                    WHERE   `runName` = '%s' 
+                                    AND     `runTime` = '%d' 
+                                    LIMIT 1",
+                                    time(),
+                                    $name,
+                                    $lastRun                                    
+                                    );    
+                                    
+                    $res = $dbh->query($sql);
+                    
+                    // Lookey, we can run it now
+                    return true;                    
+                } else {                    
+                    return false;                    
+                }
+            }
+        } else {
+            $sql = sprintf("INSERT INTO `lastRunTime` 
+                                   (
+                                        `runName`,
+                                        `runTime`
+                                   ) 
+                            VALUES (    
+                                        '%s', 
+                                        '%d' 
+                                    )",
+                            $name,
+                            time()
+                          );
+            $res = $dbh->query($sql);
+            return true; 
+        }
+    } 
+}
+
 function loadtoString( $load ) {
     if($load > 10 ) {
         return "universe ending";
