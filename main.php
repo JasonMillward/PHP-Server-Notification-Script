@@ -28,15 +28,18 @@
         sayUptime();
         
         // Notify the world how much data we've sent and recived 
-        sayNetwork();  
+        //sayNetwork();  
     }
-    
+
     // Things that run once a day, at midnight
     if ( isMidnight() && lastRun('daily','22 Hours') ) {
         
         // Check backup logs to see if everything was completed successfully
         readBackupLogs();
         
+        // Read error logs, notify owner to make them stop being silly
+        checkErrorLogs();
+    
         // Read HDD free space, notify admin if they're too full
         checkDisks();
     }
@@ -46,9 +49,6 @@
 
     // Check server load, if it's too high, notify everyone
     checkLoad();
-    
-    // Read error logs, notify owner to make them stop being silly
-    checkErrorLogs();
 
     // Check database load, buffer and general databasey things
     //readDB();

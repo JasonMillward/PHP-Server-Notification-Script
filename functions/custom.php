@@ -1,7 +1,7 @@
 <?php
 
 function todayIsTheFirst( ) {
-    if(date( "j" == "1" ) ) {
+    if( date( "j" ) == "1" ) {
         return true;
     } else {
         return false;
@@ -9,7 +9,7 @@ function todayIsTheFirst( ) {
 }
 
 function isMidnight( ) {
-    if(date( "G" == "0" ) ) {
+    if( date( "H" ) == "00" ) {
         return true;
     } else {
         return false;
@@ -17,7 +17,7 @@ function isMidnight( ) {
 }
 
 function readPartyCat() {
-    
+    global $dbh;
     $fiveAgo = time( ) - (05 * 60);
 
     $sql = "SELECT      `serverTwitter`,
@@ -48,7 +48,7 @@ function readPartyCat() {
                     $alert = "";
                 }
                 
-                $msg .= sprintf( "%s is currently experiencing %s server load %s - %s #%s", 
+                $msg = sprintf( "%s is currently experiencing %s server load %s - %s #%s", 
                                 $name,
                                 $degree,
                                 $alert,

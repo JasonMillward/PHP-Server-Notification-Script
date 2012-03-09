@@ -42,7 +42,7 @@ function lastRun($name,$length) {
     if ($res = $dbh->query($sql)) {
         
         if ($res->fetchColumn() > 0) {
-
+            print "Have a record \n";
             $sql = sprintf("SELECT      `runTime`         
                             FROM        `lastRunTime`
                             WHERE       `runName` = '%s'",
@@ -50,11 +50,11 @@ function lastRun($name,$length) {
                            );   
                             
             if ($res = $dbh->query($sql)) {
-                
+
                 $lastRun = intval( $res->fetchColumn() );
                 
                 $minTime = strtotime( $length, $lastRun );
-                
+
                 if ( time() > $minTime ) {                    
                     // Update run time to now
                     $sql = sprintf("UPDATE  `lastRunTime` 
@@ -69,9 +69,10 @@ function lastRun($name,$length) {
                                     
                     $res = $dbh->query($sql);
                     
-                    // Lookey, we can run it now
+                    // Lookey, we can run it now       
                     return true;                    
-                } else {                    
+                } else {
+                                    
                     return false;                    
                 }
             }
@@ -91,7 +92,8 @@ function lastRun($name,$length) {
             $res = $dbh->query($sql);
             return true; 
         }
-    } 
+    }
+    return false;
 }
 
 function loadtoString( $load ) {
