@@ -51,7 +51,7 @@
     checkErrorLogs();
 
     // Check database load, buffer and general databasey things
-    readDB();
+    //readDB();
     
     // Custom network load checker
     //readPartyCat();

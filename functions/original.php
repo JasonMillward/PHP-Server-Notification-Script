@@ -3,7 +3,7 @@
 function notify($message, $sendEmail = false, $subject = NULL) {
     if (!empty($message)) {
         $tweet = new TwitterOAuth( CONKEY, CONSECRET, OATOKEN, OASECRET );
-        $tweet->post( 'statuses/update', array( 'status' => $msg ) );
+        $tweet->post( 'statuses/update', array( 'status' => $message ) );
 
         if ($sendEmail) {
             $request = new RestClient( 'https://api.mailgun.net/v2/' );
@@ -218,7 +218,7 @@ function checkErrorLogs( ) {
                             DATE,
                             SERVERHASHTAG
             );
-            $tweet->post( 'statuses/update', array( 'status' => $msg ) );
+            notify( $msg );
         }
     }
 }
