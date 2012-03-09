@@ -1,4 +1,7 @@
 <?php
+// SET THE TIME ZONE
+date_default_timezone_set( "Australia/Adelaide" );
+
 // TWITTER
 define( 'SERVERHASHTAG',    '' );
 define( 'ADMINNAME',        '' );
@@ -21,9 +24,6 @@ define( 'FROM_EMAIL',       'SERVER <SERVER@DOMAIN.COM>' );
 define( 'TO_EMAIL',         'YOU <YOU@DOMAIN.COM>' );
 define( 'APIKEY',           'api:key-' );
 
-// PATH FOR LOG FILES
-define( 'LOG_PATH',         dirname( __FILE__ ) . DIRECTORY_SEPARATOR . 'logs' );
-
 // DATE FORMAT
 define( 'DATE',             date( "F j, Y, g:i a" ) );
 
@@ -31,7 +31,7 @@ define( 'DATE',             date( "F j, Y, g:i a" ) );
 // PATH TO ERROR LOGS 
 $config['errorLogs'][] = array(
     "path"        => "/",
-    "twitterName" => ""
+    "twitterName" => "/"
 );
 
 // DEFINE HARD DRIVES

@@ -42,7 +42,7 @@ function lastRun($name,$length) {
     if ($res = $dbh->query($sql)) {
         
         if ($res->fetchColumn() > 0) {
-            print "Have a record \n";
+
             $sql = sprintf("SELECT      `runTime`         
                             FROM        `lastRunTime`
                             WHERE       `runName` = '%s'",
