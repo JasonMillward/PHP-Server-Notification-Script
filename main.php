@@ -28,9 +28,9 @@
         sayUptime();
         
         // Notify the world how much data we've sent and recived 
-        //sayNetwork();  
+        sayNetwork();  
     }
-
+	
     // Things that run once a day, at midnight
     if ( isMidnight() && lastRun('daily','22 Hours') ) {
         
